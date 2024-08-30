@@ -1,6 +1,7 @@
 # JAVA INTRO
 ## JAVA PLATFORM
 ### 자바 플랫폼 소개
+![img](/images/image18.png)
 - 자바 플랫폼: Java 언어로 프로그램을 작성/실행하기 위한 소프트웨어 또는 프로그램 모음
 - Java Compiler(JAVAC)
     - 텍스트로 구성된 Java Source파일을 JVM이 해석할 수 있는 Java Byte Code(.class)로 변환
@@ -75,6 +76,8 @@ public class JavaStructure {    // 클래스 선언 및 시작
         - Project: 하나의 실행파일을 생성하기 위한 단위
             - Package: 클래스의 모음
                 - Class: 객체를 표현하는 단위
+
+    ![img](/images/image23.png)
 
 - 네이밍 규칙
     - 공통 규칙

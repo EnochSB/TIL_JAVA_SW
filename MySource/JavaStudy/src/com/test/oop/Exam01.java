@@ -16,7 +16,7 @@ class BB {
     void bb(){
         System.out.println("a = " + a + ", b = "+ b);
     }
-
+    
     int getA(){
         return this.a;
     }

@@ -1,4 +1,13 @@
 # Web Server WAS
+## 네트워크 개요
+### Packet
+### OSI 7 및 TCP/IP
+    - 포트: 응용프로그램을 구분할 수 있게 해준다.
+### 이더넷과 인터넷
+## IP 주소 체계(IPv4)
+- 127.0.0.1을 사용하면 바로 본인 PC의 네트워크에서 찾기 때문에 효율적.
+
+
 ## Apache Web Server
 ### 설치 구성
 - 다운로드: [아파치라운지](apachelounge.com)

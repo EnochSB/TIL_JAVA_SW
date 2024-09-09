@@ -99,3 +99,97 @@ public class Hostinfo extends HttpServlet { // 추상 클래스 HttpServlet을 �
     - c:\webroot 폴더에 WEB-INF 폴더 생성
     - WEB-INF 아래에 classes, lib, src 폴더 생성
     ![디렉토리](/images/image74.png)
+
+## Web Server/WAS 연동
+- WAS(톰캣)에는 별도의 Web Server가 있지만 트래픽 분산과 3-tier 구조를 갖추기 위해 기능을 분리해 연동하는 것이 좋다.
+### 연동 방식
+1. mod_jk 모듈(mod_jk.so) 방식
+    - Apache와 Tomcat 연동 만을 위한 전용 방식
+    - JkMount 옵션을 이용하여 URL이나 컨텐츠별로 유연한 설정 가능
+2. mod_proxy 방식
+3. mod_proxy_ajp 방식
+
+### mod_jk 모듈 사용
+1. [아파치 라운지](https://www.apachelounge.com/download/)에서 mod_jk 모듈 다운
+2. mod_jk.so파일을 c:\Apache24\modules 폴더로 복사
+3. c:\Apache24\conf\에 workers.properties 파일 생성 후 아래 내용 작성
+    ```txt
+    c:\Apache24\conf\workers.properties
+    worker.list=study
+    worker.study.type=ajp13
+    worker.study.host=localhost
+    worker.study.port=8009
+    ```
+4. c:\Apache24\conf\httpd.conf 파일에 아래 내용 작성
+    ``txt
+    # mod_jk 설정
+    LoadModule jk_module modules/mod_jk.so
+    JkworkersFile conf/workers.properties
+    JkMount /* study
+    JkLogFile logs/mod_jk.log
+    JkLogLevel ifo
+    JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
+    JkRequestLogFormat "%w %V %T"
+    ```
+5. c:\apache-tomcat-10.1.6\conf 내 server.xml에서 AJP(Apache JServ Protocol) 설정 부분 주석 해제 및 구문 추가
+    ```txt
+    <!-- Define an AJP 1.3 Connector on port 8009 -->
+
+    <Connector protocol="AJP/1.3"
+               address="127.0.0.1"
+               port="8009"
+               redirectPort="8443"
+	           secretRequired="false" />
+    ```
+
+## 테스트 도메인 생성
+- 메모장을 관리자권한으로 열고 C:\Windows\System32\drivers\etc 위치의 hosts파일 열기
+- 127.0.0.1 www.boardservlet.com (예시) 작성
+- c:\Apache24\conf\httpd.conf 파일에 아래 문구 주석 해제
+    ```txt
+    # mod_proxy를 사용하여 reverse proxy로 연결
+    LoadModule proxy_module modules/mod_proxy.so
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+
+    # Virtual hosts 설정
+    Include conf/extra/httpd-vhosts.conf
+    ```
+- c:\Apache24\conf\extra 내 httpd-vhosts.conf 파일에 아래 추가
+    ```txt
+    <VirtualHost *:80>
+        DocumentRoot "c:/webroot_boardservlet"
+        ServerName boardservlet.com
+        ServerAlias www.boardservlet.com
+        ErrorLog "logs/www.boardservlet.com-error.log"
+        CustomLog "logs/www.boardservlet.com-access.log" combined
+        # Forward Proxy: On, Reverse Proxy: Off
+        ProxyRequests Off
+        ProxyPreserveHost On
+        ProxyPass / http://127.0.0.1:8080/
+        ProxypassReverse / http://127.0.0.1:8080/
+        JkMount /* study/
+    </VirtualHost>
+    ```
+    - DocumentRoot에 해당하는 폴더 생성
+- 톰캣 환경 수정 (C:\apache-tomcat-10.1.6\conf\server.xml) 아래 내용 추가
+    ```txt
+        <Host name="www.boardservlet.com"  appBase="webapps"
+                unpackWARs="true" autoDeploy="true">
+        <Context path="/" docBase= "c:/webroot_boardservlet" unpackWARs="true" reloadable="true" />
+
+            <!-- SingleSignOn valve, share authentication between web applications
+                Documentation at: /docs/config/valve.html -->
+            <!--
+            <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+            -->
+
+            <!-- Access log processes all example.
+                Documentation at: /docs/config/valve.html
+                Note: The pattern used is equivalent to using pattern="common" -->
+            <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+                prefix="localhost_access_log" suffix=".txt"
+                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+
+        </Host>
+    ```
+    - 기존 localhost에서 Host name, docBase만 변경해서 추가한 것.

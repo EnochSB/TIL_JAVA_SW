@@ -47,4 +47,10 @@
 ## Samba Client
 - 윈도우에서 파일 공유를 위한 프로토콜: NetBeau => 리눅스에서는 Samba
 - 보안상 취약점 때문에 막아놓은 회사들이 많다.
-- 
+
+## 고정 IP 
+- 가상스위치 관리자: Internal Switch 생성
+
+## FTP 서버
+
+## 외부 IP 설정

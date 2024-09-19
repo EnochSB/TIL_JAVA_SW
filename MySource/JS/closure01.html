@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button class="toggle">toggle</button>
+    <div class="box" style="width: 100px; height: 100px; background: red;"></div>
+
+    <script>
+        var box = document.querySelector('.box');
+        var toggleBtn = document.querySelector('.toggle');
+
+        // 즉시 실행 함수
+        var toggle = (function(){
+            var isShow = false;
+            // 원래는 isShow는 리턴 후 사라져야 하지만
+            // 렉시컬 환경에서 기억을 해준다.
+
+            //1. 클로저 반환
+            return function(){
+                box.style.display = isShow ? 'block' : 'none';
+                // 3. 상태변경
+                isShow = !isShow;
+            };
+        })();
+
+        // 2. 이벤트 프로퍼티에 클로저 할당
+        toggleBtn.onclick = toggle;
+    </script>
+</body>
+</html>

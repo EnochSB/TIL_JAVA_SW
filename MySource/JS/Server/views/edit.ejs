@@ -9,20 +9,21 @@
 <body>
     <%- include('menu.html') %>
     <div class="container mt-4">
-        <form action="/save" method="post">
+        <form action="/edit" method="post">
             <div class="form-group">
                 <label>제목</label>
-                <input type="text" name="title" class="form-control">
+                <input type="hidden" name="id" value="<%=data._id%>">
+                <input type="text" name="title" class="form-control" value="<%=data.title%>">
             </div>
             <p></p>
             <div class="form-group">
                 <label>내용</label>
-                <textarea name="content" rows="10" class="form-control"></textarea>
+                <textarea name="content" rows="10" class="form-control"><%=data.content%></textarea>
             </div>
             <p></p>
             <div class="form-group">
                 <label>작성일</label>
-                <input type="date" name="date" class="form-control">
+                <input type="date" name="date" class="form-control" value="<%=data.date%>">
             </div>
             <p></p>
             <button type="submit" class="btn btn-warning" style="float:right;">저장</button>

@@ -1,0 +1,19 @@
+body {font-family: "나눔고딕", "맑은고딕";}
+h1 {font-family: "HY견고딕";}
+a:link {color: black;}
+a:visited {color: red;}
+a:hover {color: red;}
+a:active {color: red;}
+a {
+    text-decoration: none;
+    cursor: hand;
+}
+
+.topBanner {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-width: 500px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}

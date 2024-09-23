@@ -3,11 +3,14 @@
 // $npm install express -> express 서버 설치
 // $npm install nodemon -g -> nodemon 설치: 프로그램 상의 변화를 감지해서 자동으로 반영. 한번만 설치하면 다음 프로젝트에는 설치 안해도 됨.
 
-const express = require('express');
-const app = express();
+const express = require('express'); // 전체 객체값이 express호출
+const app = express();  // 객체 중 메서드 관련 부분이 여기로 전달
 app.listen(8080, function(){
     console.log("포트 8080으로 서버 대기중...");
-})
+});
+
+// 정적 파일 라이브러리 설정
+app.use(express.static("public"));  // 정적 파일 관리를 위한 폴더 지정
 
 /////////////////// ejs 템플리트 엔진 설정 ///////////////////////
 // $npm install ejs
@@ -17,7 +20,7 @@ app.set('view engine','ejs');
 // $npm install --save mongodb
 const mongoclient = require('mongodb').MongoClient;
 
-// Mongo DB에서 제공하는 ObjectId 객체에서 id를 가져오게 하는 API 설정
+// Mongo DB에서 제공하는 id를 Object로 변환하기 위한 API 설정
 // $npm install objectid
 const ObjId =require('mongodb').ObjectId;
 const url = 'mongodb+srv://webmaster:12345@cluster0.c9gen.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
@@ -40,7 +43,7 @@ app.use(bodyParser.urlencoded({extended: true})); // urlencoded: form으로 데�
 
 // 초기 접속 화면
 app.get('/', (req, res) => {
-    res.send('<h1>홈 입니다.</h1>');
+    res.render('index.ejs');
 });
 
 // 게시물 목록 보기 화면
@@ -78,13 +81,52 @@ app.post('/save', (req, res) => {
 
 // 게시물 상세 화면
 app.get('/content/:id', (req, res) => {
-    req.params.id = new ObjId(req.params.id);
-    mydb.collection("post")
-        .findOne({_id: req.params.id})
+    req.params.id = new ObjId(req.params.id);   // 문자열 id를 객체 형태로 변환
+    
+    mydb.collection("post").findOne({_id: req.params.id})// select * from post where id = ****
         .then((result) => {
             console.log(result);
             res.render("content.ejs", {data:result});
         });
+});
+
+// 게시물 삭제
+app.post('/delete', (req, res) => {
+    req.body._id = new ObjId(req.body._id);
+    // delete from post where id = ***;
+    mydb.collection("post").deleteOne(req.body).then(result => {
+        console.log('삭제완료');
+        // 상태코드 200을 응답코드로 보내줘야 ajax의 done() 루틴이 작동
+        res.status(200).send();
+    }).catch(err => {
+        console.log(err);
+        res.status(500).send();
+    });
+});
+
+// 게시물 편집 화면
+app.get('/edit/:id', (req, res) => {
+    req.params.id = new ObjId(req.params.id);
+    mydb.collection('post').findOne({_id: req.params.id})
+        .then((result) => {
+            console.log(result);
+            res.render("edit.ejs", {data:result});
+        });
+});
+
+// 게시물 편집
+app.post('/edit', (req, res) => {
+    req.body.id = new ObjId(req.body.id);
+    mydb.collection('post').updateOne({_id: req.body.id}, {$set: {
+        title: req.body.title,
+        content: req.body.content,
+        date: req.body.date,
+    }}).then((result) => {
+        console.log(result);
+        res.redirect("/content/" + req.body.id);
+    }).catch(err => {
+        console.log(err);
+    });
 });
 
 

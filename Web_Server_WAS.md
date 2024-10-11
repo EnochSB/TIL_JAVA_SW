@@ -182,6 +182,22 @@ public class Hostinfo extends HttpServlet { // 추상 클래스 HttpServlet을 �
         ProxypassReverse / http://127.0.0.1:8080/
         JkMount /* study
     </VirtualHost>
+
+    # ROOT.war로 배포할 경우
+    <VirtualHost *:80>
+        DocumentRoot "c:/webroot_boardservlet/ROOT"
+        ServerName boardservlet.com
+        ServerAlias www.boardservlet.com
+        ErrorLog "logs/www.boardservlet.com-error.log"
+        CustomLog "logs/www.boardservlet.com-access.log" combined
+        # On: Forward Proxy, Off: Reverse Proxy
+        ProxyRequests Off
+        # Web Server에 요청이 오면 Proxy 서버로 요청을 전달
+        ProxyPreserveHost On
+        ProxyPass / http://127.0.0.1:8080/
+        ProxypassReverse / http://127.0.0.1:8080/
+        JkMount /* study
+    </VirtualHost>
     ```
     - DocumentRoot에 해당하는 폴더 생성 후 기존 webroot에 있던 프로젝트 옮기기
 - 톰캣 환경 수정 (C:\apache-tomcat-10.1.6\conf\server.xml) 아래 내용 추가
@@ -189,6 +205,15 @@ public class Hostinfo extends HttpServlet { // 추상 클래스 HttpServlet을 �
         <Host name="www.boardservlet.com"  appBase="webapps"
                 unpackWARs="true" autoDeploy="true">
         <Context path="/" docBase= "c:/webroot_boardservlet" unpackWARs="true" reloadable="true" />
+
+            <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+                prefix="localhost_access_log" suffix=".txt"
+                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+
+        </Host>
+        <!-- 혹은 -->
+        <Host name="www.boardservlet.com"  appBase="c:/webroot_boardservlet"
+                unpackWARs="true" autoDeploy="true">
 
             <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                 prefix="localhost_access_log" suffix=".txt"

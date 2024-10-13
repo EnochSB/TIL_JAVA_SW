@@ -39,11 +39,98 @@ mongoclient.connect(url)
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true})); // urlencoded: form으로 데이터를 보낼 때 대표적인 인코딩
 
+
+/////////////////// 쿠키 설정 //////////////////////////////////
+// $npm install cookie-parser
+// let cookieParser = require('cookie-parser');
+
+// app.use(cookieParser('gdhgtwFDSGTHHJ231F42FVC2'));
+// app.get('/cookie', (req, res) => {
+//     let milk = parseInt(req.signedCookies.milk) + 1000;
+//     if(isNaN(milk)){
+//         milk = 0;
+//     }
+//     res.cookie("milk", milk, {signed : true});
+//     res.send("product : " + milk + "원");
+// });
+
+/////////////////// 세션 설정 /////////////////////////////////
+// npm install express-session
+
+let session = require('express-session');
+
+app.use(session({
+    secret: 'fsfksfsajflsafnm',
+    resave: false,
+    saveUninitialized: true
+}));
+
+// app.get('/session', (req, res) => {
+//     if(isNaN(req.session.milk)){
+//         req.session.milk = 0;
+//     }
+//     req.session.milk = req.session.milk + 1000;
+//     res.send("session : " + req.session.milk + "원");
+// });
+
+
 /////////////////// 라우팅 설정 ///////////////////////
 
-// 초기 접속 화면
+// 초기 접속 화면(로그인화면)
 app.get('/', (req, res) => {
-    res.render('index.ejs');
+    console.log(req.session);
+    if(req.session.user){
+        console.log("세션 유지");
+        res.redirect('/list');
+    } else {
+        res.render('index.ejs');
+    }
+});
+
+// 로그인
+app.post("/login", (req, res) => {
+    console.log(req.body.usrid);
+    console.log(req.body.userpw);
+
+    mydb.collection("account")
+        .findOne({userid : req.body.userid})
+        .then((result) => {
+            if(result.userpw == req.body.userpw){
+                req.session.user = req.body;
+                console.log("세로운 로그인");
+                res.redirect('/list');
+            } else {
+                res.send("비밀번호가 올바르지 않습니다.");
+            }
+        });
+});
+
+// 로그아웃
+app.get("/logout", (req, res) => {
+    console.log('로그아웃');
+    req.session.destroy();
+    res.redirect("/");
+});
+
+// 회원 가입 화면
+app.get("/signup", (req, res) => {
+    res.render("signup.ejs");
+});
+
+// 회원 가입
+app.post("/signup", (req, res) => {
+    console.log(req.body.userid);
+    console.log(req.body.userpw);
+
+    mydb.collection("account")
+        .insertOne({
+            userid: req.body.userid,
+            userpw: req.body.userpw
+        })
+        .then((result) => {
+            console.log('회원가입 성공');
+        });
+    res.redirect("/");
 });
 
 // 게시물 목록 보기 화면
@@ -60,6 +147,7 @@ app.get('/list', (req, res) => {
 app.get('/enter', (req, res) => {
     res.render('enter.ejs');
 });
+
 // 입력한 게시물 데이터 저장
 app.post('/save', (req, res) => {
     console.log(req.body.title);

@@ -46,7 +46,7 @@ CREATE TABLE tbl_tmp_addr (
 
 -- 2. 데이터 IMPORT 
 -- mariadb
-load data local infile 'c:\\kkk\\서울특별시.csv' into table tbl_tmp_addr fields terminated by ',' lines terminated by '\n';
+load data local infile 'c:\\myTemp\\서울특별시.csv' into table tbl_tmp_addr fields terminated by ',' lines terminated by '\n';
 
 -- 3. 업무용 테이블 만들기
 -- oracle

@@ -4,7 +4,7 @@
 - lombok 설치
 
 ## Spring Bean
-- Singletom Pattern으로 생성된 스프링의 객체
+- Singleton Pattern으로 생성된 스프링의 객체
 - 스프링이 시작되어 종료될때까지 계속 메모리에 상주하면서 프로그램을 작동시킨다.
 - 자바 클래스를 다음과 같은 방법을 거쳐 스프링 빈으로 만든다.
     1. xml 설정 파일에 등록(Spring Framework에서 주로 사용)
@@ -48,7 +48,7 @@
     - 추가 한 뒤에는 build.gradle 파일 우클릭->Gradle->Refresh Gradle Project
     - 그래도 오류가 난다면 버전을 바꿔가며 시도
 
-## application.properies 설정
+## application.properties 설정
 - 이클립스는 복붙하면 오류 발생하는 경우가 있으니 타이핑
 ```properties
 spring.application.name=BoardTest
@@ -128,3 +128,62 @@ spring.thymeleaf.cache=false
 - 프로젝트>build>lib 폴더에 SNAPSHOT.jar 파일이 생성되어 있음
 - 이 파일을 가지고 아무 폴더로 가서 cmd로 $java -jar ***SNAPSHOT.jar 입력
 - 스프링이 실행되어 파일 하나로 배포가 됨.
+
+## Springframework(mariadb) -> SpringBoot(oracle)
+- 프로젝트 생성(+그래들 설정)
+- src/main/resources/
+    - application.properties 설정
+        ```properties
+        # DB 연결 설정
+        spring.datasource.hikari.driver-class-name=oracle.jdbc.driver.OracleDriver
+        spring.datasource.hikari.jdbc-url=jdbc:oracle:thin:@//localhost:1521/springpdb
+        spring.datasource.hikari.username=springdev
+        spring.datasource.hikari.password=12345
+        spring.datasource.hikari.connection-test-query=SELECT sysdate FROM DUAL
+
+        # mybatis 설정
+        mybatis.config-location=classpath:/mybatis-config.xml
+        mybatis.mapper-locations=classpath:/mappers/**/*Mapper.xml
+
+        # 개발 환경 설정
+        spring.devtools.livereload.enabled=true
+        spring.thymeleaf.cache=false
+
+        # 파일 업로드 설정
+        spring.servlet.multipart.max-file-size = 1024MB
+        spring.servlet.multipart.max-request-size = 1024MB
+
+        # 내장 톰캣 설정 ==> Configuration에서 가져다 쓸 값
+        tomcat.ajp.protocol=AJP/1.3
+        tomcat.ajp.port=8009
+        tomcat.ajp.enabled=true
+        ```
+    - mybatis-config.xml 생성
+        ```xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+        <configuration>
+        </configuration>
+        ```
+    - mappers 폴더 생성 후 Springframework의 Mapper.xml들 가져오기
+        - Mapper.xml 수정
+        - namespace를 기존에는 com.board.mappers.
+        - concat => ||로 수정
+        - seq 설정
+        ```sql
+        select seq, seqno, userid, writer, title, regdate, hitno
+        from (
+            select row_number() over (order by seqno desc) as seq, seqno, userid, title, writer, hitno, regdate
+            from tbl_board
+            where title like '%'||#{keyword}||'%'
+            or writer like '%'||#{keyword}||'%'
+            or content like '%'||#{keyword}||'%'
+        )
+        where seq between #{startPoint} and #{endPoint}
+        ```
+        - localdatetime은 SYSDATE로 입력되어야 함.
+    - staic 폴더 생성후 기존 static 파일들 옮기기
+    - template 안에 기존 view 옮기기
+        - 

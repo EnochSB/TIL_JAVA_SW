@@ -64,6 +64,7 @@ CREATE TABLE tbl_member (
 	lastlogindate DATE NULL,
 	lastlogoutdate DATE NULL,
 	lastpwdate DATE NULL,
+	lastpwcheckdate DATE NULL,
 	pwcheck NUMBER NULL,
 	role VARCHAR2(50) NOT NULL ,
 	org_filename NVARCHAR2(200) NULL ,

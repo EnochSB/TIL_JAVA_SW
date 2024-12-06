@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS tbl_member (
 	lastlogindate TIMESTAMP NULL,
 	lastlogoutdate TIMESTAMP NULL,
 	lastpwdate TIMESTAMP NULL,
+	lastpwcheckdate TIMESTAMP NULL,
 	pwcheck INT NULL DEFAULT '0',
 	role VARCHAR(50) NOT NULL ,
 	org_filename VARCHAR(50) NULL ,
